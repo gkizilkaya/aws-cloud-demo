@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text-to-SQL Model Araştırması – SofkarAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #111111;
+      --gray-dark: #333333;
+      --gray-mid: #666666;
+      --gray-light: #aaaaaa;
+      --border: #e0e0e0;
+      --bg: #ffffff;
+      --bg-alt: #f7f7f7;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 0 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 56px;
+    }
+    nav .logo { height: 28px; }
+    nav .links { display: flex; gap: 28px; }
+    nav .links a {
+      color: var(--gray-light); text-decoration: none; font-size: 0.82rem;
+      letter-spacing: 0.5px; text-transform: uppercase; transition: color 0.15s;
+    }
+    nav .links a:hover { color: var(--black); }
+
+    .hero {
+      padding: 80px 48px 72px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero .label {
+      font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gray-light); margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: 2.8rem; font-weight: 700; line-height: 1.2;
+      max-width: 680px; margin-bottom: 20px;
+    }
+    .hero p {
+      color: var(--gray-mid); font-size: 1.05rem;
+      max-width: 600px; margin-bottom: 36px;
+    }
+    .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-tags span {
+      border: 1px solid var(--border); padding: 5px 14px;
+      font-size: 0.8rem; color: var(--gray-mid);
+    }
+
+    section { padding: 72px 48px; border-bottom: 1px solid var(--border); }
+    section.alt { background: var(--bg-alt); }
+    .container { max-width: 1060px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.72rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gray-light); margin-bottom: 12px;
+    }
+    h2 { font-size: 1.8rem; font-weight: 700; margin-bottom: 12px; }
+    h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .lead {
+      color: var(--gray-mid); font-size: 1rem;
+      max-width: 720px; margin-bottom: 40px; line-height: 1.75;
+    }
+
+    /* MODEL CARDS */
+    .model-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .model-card { background: var(--bg); padding: 28px 24px; }
+    .model-card.alt { background: var(--bg-alt); }
+    .model-tag {
+      display: inline-block; font-size: 0.7rem; letter-spacing: 1px;
+      text-transform: uppercase; padding: 3px 10px;
+      background: var(--black); color: white; margin-bottom: 14px;
+    }
+    .model-card h3 { font-size: 1rem; margin-bottom: 6px; }
+    .model-card .maker { font-size: 0.78rem; color: var(--gray-light); margin-bottom: 10px; }
+    .model-card p { color: var(--gray-mid); font-size: 0.88rem; line-height: 1.65; }
+    .model-card .score {
+      margin-top: 14px; font-size: 0.82rem; color: var(--black);
+      font-weight: 600; border-top: 1px solid var(--border); padding-top: 12px;
+    }
+
+    /* TABLES */
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 0.88rem; }
+    th {
+      background: var(--black); color: white;
+      padding: 12px 16px; text-align: left; font-weight: 600;
+      font-size: 0.8rem; letter-spacing: 0.5px;
+    }
+    td {
+      padding: 11px 16px; border: 1px solid var(--border);
+      color: var(--gray-mid); vertical-align: top;
+    }
+    td:first-child { color: var(--black); font-weight: 600; }
+    tr:nth-child(even) td { background: var(--bg-alt); }
+
+    /* INFO BOX */
+    .infobox {
+      border-left: 3px solid var(--black);
+      padding: 14px 18px; margin: 24px 0;
+      font-size: 0.9rem; color: var(--gray-mid); background: var(--bg-alt);
+    }
+    .infobox strong { color: var(--black); }
+
+    /* SOURCES */
+    .source-list { list-style: none; margin-top: 8px; }
+    .source-list li {
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      font-size: 0.88rem; display: flex; gap: 16px; align-items: baseline;
+    }
+    .source-list li:last-child { border-bottom: none; }
+    .source-num {
+      font-size: 0.75rem; font-weight: 700; color: var(--gray-light);
+      min-width: 24px;
+    }
+    .source-list a { color: var(--black); text-decoration: underline; word-break: break-all; }
+    .source-list a:hover { color: var(--gray-mid); }
+    .source-desc { color: var(--gray-mid); font-size: 0.82rem; margin-top: 2px; }
+
+    ul.styled { padding-left: 18px; margin-top: 12px; }
+    ul.styled li { color: var(--gray-mid); margin-bottom: 8px; font-size: 0.9rem; }
+    ul.styled li strong { color: var(--black); }
+
+    footer {
+      padding: 40px 48px; display: flex; align-items: center;
+      justify-content: space-between; flex-wrap: wrap; gap: 16px;
+    }
+    footer img { height: 20px; }
+    footer p { color: var(--gray-light); font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <img class="logo" src="sofkar-logo.png" alt="SofkarAI">
+  <div class="links">
+    <a href="#modeller">Modeller</a>
+    <a href="#donanim">Donanım</a>
+    <a href="#finetune">Fine-Tune</a>
+    <a href="#kaynakca">Kaynakça</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="container">
+    <img src="sofkar-logo.png" alt="SofkarAI" style="height:36px; margin-bottom:28px; display:block;">
+    <div class="label">SofkarAI · Text-to-SQL Araştırma · Nisan 2026</div>
+    <h1>SQL Üretimi için Özel Eğitilmiş Modeller</h1>
+    <p>Hugging Face ve açık kaynak ekosistemindeki text-to-SQL modellerinin karşılaştırması. Lokal çalıştırma, fine-tune gereksinimleri ve öneriler.</p>
+    <div class="hero-tags">
+      <span>Text-to-SQL</span>
+      <span>Hugging Face</span>
+      <span>BIRD Benchmark</span>
+      <span>Fine-Tuning</span>
+      <span>Open Source</span>
+    </div>
+  </div>
+</div>
+
+<!-- BENCHMARK HAKKINDA -->
+<section class="alt">
+  <div class="container">
+    <div class="section-label">Ön Bilgi</div>
+    <h2>BIRD Benchmark Nedir?</h2>
+    <p class="lead">Text-to-SQL modellerini ölçmek için kullanılan en yaygın akademik test seti. Modelin doğal dil sorusundan doğru SQL üretip üretemediğini ölçer. Execution Accuracy (EX) skoru kullanılır — üretilen SQL çalıştırıldığında doğru sonucu veriyor mu?</p>
+    <div class="infobox">
+      <strong>Örnek:</strong> "2023'te en çok satış yapan 5 ürün hangileri?" sorusuna karşılık model doğru SQL yazar mı? BIRD bu tür binlerce soruyla modeli sınar. Skor ne kadar yüksekse model o kadar başarılı.
+    </div>
+  </div>
+</section>
+
+<!-- MODELLER -->
+<section id="modeller">
+  <div class="container">
+    <div class="section-label">01 — Model Kataloğu</div>
+    <h2>Öne Çıkan Text-to-SQL Modeller</h2>
+    <p class="lead">Tümü açık kaynak, Hugging Face üzerinden erişilebilir.</p>
+
+    <div class="model-grid">
+      <div class="model-card">
+        <div class="model-tag">SOTA 2026</div>
+        <h3>Arctic-Text2SQL-R1</h3>
+        <div class="maker">Snowflake · 7B / 14B / 32B</div>
+        <p>Şu anki en iyi açık kaynak text-to-SQL model ailesi. Qwen2.5-Coder üzerine RL (pekiştirmeli öğrenme) ile eğitildi. 7B boyutu, 671B parametreli DeepSeek-V3'ü geçiyor.</p>
+        <div class="score">BIRD EX — 7B: %68.5 · 14B: %70.0 · 32B: %71.8</div>
+      </div>
+      <div class="model-card alt">
+        <div class="model-tag">Çok Boyutlu</div>
+        <h3>XiYanSQL-QwenCoder</h3>
+        <div class="maker">Alibaba · 3B / 7B / 14B / 32B</div>
+        <p>GRPO eğitim tekniği kullanan Alibaba modeli. Birden fazla SQL diyalektini destekliyor: SQLite, PostgreSQL, MySQL. Geniş boyut aralığı esnek kullanım sağlıyor.</p>
+        <div class="score">BIRD EX — 32B: %69.0</div>
+      </div>
+      <div class="model-card">
+        <div class="model-tag">Akademik</div>
+        <h3>OmniSQL</h3>
+        <div class="maker">RUCKBReasoning · 7B / 14B / 32B</div>
+        <p>2.5 milyon sentetik örnekten oluşan SynSQL-2.5M veri setiyle eğitildi. Schema linking pipeline olmadan GPT-4o ile aynı doğruluğa ulaşıyor. VLDB 2025'te yayımlandı.</p>
+        <div class="score">BIRD EX — GPT-4o seviyesi</div>
+      </div>
+      <div class="model-card alt">
+        <div class="model-tag">Yaygın Kullanım</div>
+        <h3>SQLCoder</h3>
+        <div class="maker">Defog · 7B / 34B / 70B</div>
+        <p>Uzun süredir yaygın kullanılan referans model. Llama 3 tabanlı. Kendi SQL-Eval benchmark'ında %96+ skor. Topluluk desteği ve entegrasyon örnekleri zengin.</p>
+        <div class="score">SQL-Eval: %96+ (kendi benchmark)</div>
+      </div>
+      <div class="model-card">
+        <div class="model-tag">Pipeline</div>
+        <h3>bird-sql (Contextual AI)</h3>
+        <div class="maker">Contextual AI · Pipeline</div>
+        <p>Tek model değil, iki aşamalı sistem: aday SQL üretimi + sıralama. Şubat 2025'te BIRD genel sıralamasında 1. oldu. Açık kaynak olarak yayımlandı.</p>
+        <div class="score">BIRD Overall — 1. sıra (Feb 2025)</div>
+      </div>
+      <div class="model-card alt">
+        <div class="model-tag">Edge / CPU</div>
+        <h3>Prem-1B-SQL</h3>
+        <div class="maker">PremAI · 1B</div>
+        <p>CPU'da ve düşük donanımda çalışmak için tasarlanmış hafif model. GPU gerektirmez. Basit SQL sorguları için yeterli, karmaşık join yapıları için yetersiz kalabilir.</p>
+        <div class="score">CPU'da çalışır, GPU gerekmez</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DONANIM -->
+<section id="donanim" class="alt">
+  <div class="container">
+    <div class="section-label">02 — Donanım Gereksinimleri</div>
+    <h2>Lokalden Çalıştırmak için Ne Lazım?</h2>
+    <p class="lead">Model boyutuna ve quantization (sıkıştırma) seviyesine göre gereksinimler değişiyor.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Model Boyutu</th>
+          <th>Tam Hassasiyet (FP16)</th>
+          <th>4-bit Quantize (INT4)</th>
+          <th>Örnek GPU</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1B – 3B</td>
+          <td>4–6 GB VRAM</td>
+          <td>2–3 GB VRAM</td>
+          <td>RTX 3060, M1 Mac</td>
+        </tr>
+        <tr>
+          <td>7B</td>
+          <td>14–17 GB VRAM</td>
+          <td>4–6 GB VRAM</td>
+          <td>RTX 3060 (quant) / RTX 4090</td>
+        </tr>
+        <tr>
+          <td>14B</td>
+          <td>24–28 GB VRAM</td>
+          <td>8–10 GB VRAM</td>
+          <td>RTX 4090 (24 GB)</td>
+        </tr>
+        <tr>
+          <td>32B</td>
+          <td>60–65 GB VRAM</td>
+          <td>16–18 GB VRAM</td>
+          <td>2x RTX 4090 / A100 40GB</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="infobox" style="margin-top:32px;">
+      <strong>Quantization nedir?</strong> Modelin ağırlıklarını 16-bit yerine 4-bit ile saklamak. Bellek kullanımı 3–4x azalır, doğrulukta küçük kayıp olur ama text-to-SQL gibi görevlerde bu kayıp genellikle kabul edilebilir. Araçlar: <strong>llama.cpp</strong>, <strong>bitsandbytes</strong>, <strong>Ollama</strong>.
+    </div>
+  </div>
+</section>
+
+<!-- FINE-TUNE -->
+<section id="finetune">
+  <div class="container">
+    <div class="section-label">03 — Kendi Verinle Eğitme</div>
+    <h2>Fine-Tuning: Modeli Özelleştirmek</h2>
+    <p class="lead">Genel text-to-SQL modelini şirket veritabanı şemasına ve sektöre özgü sorgu yapısına uyarlamak için fine-tuning yapılır.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Yöntem</th>
+          <th>7B için VRAM</th>
+          <th>14B için VRAM</th>
+          <th>Notlar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Full Fine-tune</td>
+          <td>100–120 GB</td>
+          <td>200+ GB</td>
+          <td>Lokalden pratikte mümkün değil</td>
+        </tr>
+        <tr>
+          <td>LoRA</td>
+          <td>16–20 GB</td>
+          <td>28–40 GB</td>
+          <td>RTX 3090 / 4090 ile mümkün</td>
+        </tr>
+        <tr>
+          <td>QLoRA (4-bit)</td>
+          <td>8–12 GB</td>
+          <td>16–24 GB</td>
+          <td>RTX 3080 ile bile yapılabilir</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:36px;">
+      <h3>Fine-Tuning için Araçlar</h3>
+      <ul class="styled">
+        <li><strong>DB-GPT-Hub</strong> — text-to-SQL fine-tuning için özel geliştirilmiş kütüphane. QLoRA desteği var.</li>
+        <li><strong>PremSQL</strong> — modüler yapı, fine-tuning + değerlendirme araçları bir arada.</li>
+        <li><strong>Unsloth</strong> — QLoRA eğitimini hızlandırıyor, bellek kullanımını düşürüyor.</li>
+        <li><strong>PEFT / TRL</strong> — Hugging Face'in genel amaçlı LoRA kütüphaneleri.</li>
+      </ul>
+    </div>
+
+    <div class="infobox" style="margin-top:32px;">
+      <strong>Öneri:</strong> Başlangıç için Arctic-Text2SQL-R1-7B modelini QLoRA ile fine-tune etmek en makul yol. RTX 4090 (24 GB) yeterli. GPU yoksa AWS EC2'de g4dn.xlarge instance (T4 GPU, 16 GB) kiralık çalıştırılabilir.
+    </div>
+  </div>
+</section>
+
+<!-- KAYNAKÇA -->
+<section id="kaynakca" class="alt">
+  <div class="container">
+    <div class="section-label">04 — Kaynakça</div>
+    <h2>Kaynaklar</h2>
+    <p class="lead">Bu araştırmada kullanılan birincil kaynaklar.</p>
+
+    <ul class="source-list">
+      <li>
+        <span class="source-num">[1]</span>
+        <div>
+          <a href="https://huggingface.co/Snowflake/Arctic-Text2SQL-R1-7B" target="_blank">Snowflake/Arctic-Text2SQL-R1-7B — Hugging Face</a>
+          <div class="source-desc">Model kartı, kullanım kılavuzu ve benchmark sonuçları</div>
+        </div>
+      </li>
+      <li>
+        <span class="source-num">[2]</span>
+        <div>
+          <a href="https://www.snowflake.com/en/engineering-blog/arctic-text2sql-r1-sql-generation-benchmark/" target="_blank">Arctic-Text2SQL-R1 Engineering Blog — Snowflake</a>
+          <div class="source-desc">Model mimarisi, eğitim yöntemi ve karşılaştırmalı benchmark analizi</div>
+        </div>
+      </li>
+      <li>
+        <span class="source-num">[3]</span>
+        <div>
+          <a href="https://bird-bench.github.io/" target="_blank">BIRD Benchmark Leaderboard</a>
+          <div class="source-desc">Resmi text-to-SQL sıralama listesi, execution accuracy skorları</div>
+        </div>
+      </li>
+      <li>
+        <span class="source-num">[4]</span>
+        <div>
+          <a href="https://arxiv.org/abs/2503.02240" target="_blank">OmniSQL — arXiv (VLDB 2025)</a>
+          <div class="source-desc">SynSQL-2.5M veri setiyle eğitilen OmniSQL modelinin akademik makalesi</div>
+        </div>
+      </li>
+      <li>
+        <span class="source-num">[5]</span>
+        <div>
+          <a href="https://github.com/XGenerationLab/XiYanSQL-QwenCoder" target="_blank">XiYanSQL-QwenCoder — GitHub (Alibaba)</a>
+          <div class="source-desc">Model ağırlıkları, fine-tuning kodu ve değerlendirme araçları</div>
+        </div>
+      </li>
+      <li>
+        <span class="source-num">[6]</span>
+        <div>
+          <a href="https://github.com/defog-ai/sqlcoder" target="_blank">SQLCoder — GitHub (Defog AI)</a>
+          <div class="source-desc">SQLCoder model ailesi, SQL-Eval benchmark ve kullanım örnekleri</div>
+        </div>
+      </li>
+      <li>
+        <span class="source-num">[7]</span>
+        <div>
+          <a href="https://contextual.ai/blog/open-sourcing-the-best-local-text-to-sql-system" target="_blank">Open-Sourcing the Best Local Text-to-SQL System — Contextual AI</a>
+          <div class="source-desc">İki aşamalı pipeline mimarisi ve BIRD 1. sıra sonuçları</div>
+        </div>
+      </li>
+      <li>
+        <span class="source-num">[8]</span>
+        <div>
+          <a href="https://github.com/eosphoros-ai/DB-GPT-Hub" target="_blank">DB-GPT-Hub — GitHub</a>
+          <div class="source-desc">Text-to-SQL fine-tuning için QLoRA destekli açık kaynak kütüphane</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <img src="sofkar-logo.png" alt="SofkarAI">
+  <p>Text-to-SQL Model Araştırması · SofkarAI · Nisan 2026</p>
+</footer>
+
+</body>
+</html>
