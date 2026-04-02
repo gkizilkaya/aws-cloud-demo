@@ -29,19 +29,20 @@
     /* NAV */
     nav {
       position: sticky; top: 0; z-index: 100;
-      background: var(--black);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
       padding: 0 48px;
       display: flex; align-items: center; justify-content: space-between;
       height: 56px;
     }
-    nav .logo { height: 24px; filter: brightness(0) invert(1); }
+    nav .logo { height: 22px; }
     nav .links { display: flex; gap: 28px; }
     nav .links a {
-      color: #aaaaaa; text-decoration: none; font-size: 0.82rem;
+      color: var(--gray-light); text-decoration: none; font-size: 0.82rem;
       letter-spacing: 0.5px; text-transform: uppercase;
       transition: color 0.15s;
     }
-    nav .links a:hover { color: #ffffff; }
+    nav .links a:hover { color: var(--black); }
 
     /* HERO */
     .hero {
@@ -199,7 +200,8 @@
 <!-- HERO -->
 <div class="hero">
   <div class="container">
-    <div class="label">SofkarAI · AWS Araştırma · 2026</div>
+    <img src="sofkar-logo.png" alt="SofkarAI" style="height:32px; margin-bottom:28px; display:block;">
+    <div class="label">AWS Araştırma · 2026</div>
     <h1>AWS Bulut Altyapısı</h1>
     <p>VPC, EC2 ve Fargate'e dair temel kavramlar. Pratik notlar, karşılaştırmalar ve maliyet dikkat noktaları.</p>
     <div class="hero-tags">
@@ -272,9 +274,6 @@
       <strong>Public vs Private Subnet:</strong> Web sunucusu public subnet'te olur — internetten istek alması gerekir. Veritabani private subnet'te olur — dışarıdan erişilmemeli, yalnızca web sunucusu erişmeli. Bu basit ayrım büyük güvenlik sağlar.
     </div>
 
-    <div class="warnbox">
-      <strong>Dikkat — NAT Gateway:</strong> Private subnet'teki kaynakların internete çıkması için kullanılır. Saatlik ~$0.045 ücretlidir. Test ortamında seçmekten kaçinin.
-    </div>
   </div>
 </section>
 
@@ -308,9 +307,6 @@
       </div>
     </div>
 
-    <div class="warnbox" style="margin-top:32px;">
-      <strong>Stop vs Terminate:</strong> Instance'ı "Durdur" (Stop) yaparsanız disk ücreti devam eder. Tamamen ücreti kesmek için "Sonlandır" (Terminate) seçin. Free Tier'da t3.micro için 750 saat/ay ücretsiz — sürekli açık 1 sunucu ~720 saat demektir, sınıra yakın.
-    </div>
   </div>
 </section>
 
