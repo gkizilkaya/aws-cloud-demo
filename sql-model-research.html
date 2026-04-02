@@ -337,16 +337,101 @@
       </ul>
     </div>
 
-    <div class="infobox" style="margin-top:32px;">
-      <strong>Öneri:</strong> Başlangıç için Arctic-Text2SQL-R1-7B modelini QLoRA ile fine-tune etmek en makul yol. RTX 4090 (24 GB) yeterli. GPU yoksa AWS EC2'de g4dn.xlarge instance (T4 GPU, 16 GB) kiralık çalıştırılabilir.
-    </div>
+  </div>
+</section>
+
+<!-- MODEL KARŞILAŞTIRMASI -->
+<section class="alt">
+  <div class="container">
+    <div class="section-label">04 — Karşılaştırma</div>
+    <h2>Model Karşılaştırması</h2>
+    <p class="lead">Çoklu veritabanı, banka ve finans sektörü, karmaşık sorgu yapısı kriterleri esas alınmıştır.</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Kriter</th>
+          <th>Arctic 7B</th>
+          <th>XiYanSQL 14B</th>
+          <th>OmniSQL 14B</th>
+          <th>SQLCoder 34B</th>
+          <th>bird-sql</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Çoklu DB Diyalekt</td>
+          <td>Orta</td>
+          <td>Güçlü</td>
+          <td>Orta</td>
+          <td>Orta</td>
+          <td>Güçlü</td>
+        </tr>
+        <tr>
+          <td>Karmaşık Sorgu</td>
+          <td>Güçlü</td>
+          <td>Güçlü</td>
+          <td>Güçlü</td>
+          <td>Orta</td>
+          <td>Çok güçlü</td>
+        </tr>
+        <tr>
+          <td>Fine-tune Kolaylığı</td>
+          <td>Kolay</td>
+          <td>Kolay</td>
+          <td>Orta</td>
+          <td>Kolay</td>
+          <td>Zor (2 model)</td>
+        </tr>
+        <tr>
+          <td>Üretim Hazırlığı</td>
+          <td>Orta</td>
+          <td>Orta</td>
+          <td>Düşük</td>
+          <td>Yüksek</td>
+          <td>Orta</td>
+        </tr>
+        <tr>
+          <td>Cross-DB Hazırlık</td>
+          <td>Düşük</td>
+          <td>Yüksek</td>
+          <td>Orta</td>
+          <td>Düşük</td>
+          <td>Orta</td>
+        </tr>
+        <tr>
+          <td>Finans Domenine Uyum</td>
+          <td>Fine-tune gerekir</td>
+          <td>Fine-tune gerekir</td>
+          <td>Fine-tune gerekir</td>
+          <td>Fine-tune gerekir</td>
+          <td>Fine-tune gerekir</td>
+        </tr>
+        <tr>
+          <td>Donanım İhtiyacı</td>
+          <td>Orta</td>
+          <td>Yüksek</td>
+          <td>Yüksek</td>
+          <td>Çok yüksek</td>
+          <td>Çok yüksek</td>
+        </tr>
+        <tr>
+          <td>BIRD EX Skoru</td>
+          <td>%68.5</td>
+          <td>%69.0</td>
+          <td>~%70</td>
+          <td>%67</td>
+          <td>1. sıra</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </section>
 
 <!-- KAYNAKÇA -->
 <section id="kaynakca" class="alt">
   <div class="container">
-    <div class="section-label">04 — Kaynakça</div>
+    <div class="section-label">05 — Kaynakça</div>
     <h2>Kaynaklar</h2>
     <p class="lead">Bu araştırmada kullanılan birincil kaynaklar.</p>
 
