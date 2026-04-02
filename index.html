@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SofkarAI – AWS Bulut Altyapısı Araştırması</title>
+  <style>
+    :root {
+      --bg: #07091a;
+      --bg2: #0d1130;
+      --card: #111827;
+      --border: #1e2a45;
+      --cyan: #00d4ff;
+      --purple: #7b2ff7;
+      --green: #00ff88;
+      --orange: #ff8c00;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(7,9,26,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    nav .logo { filter: brightness(0) invert(1); height: 28px; }
+    nav .links { display: flex; gap: 24px; }
+    nav .links a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    nav .links a:hover { color: var(--cyan); }
+
+    /* HERO */
+    .hero {
+      text-align: center; padding: 80px 40px 60px;
+      background: radial-gradient(ellipse at center top, #0d1f4a 0%, var(--bg) 70%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero .badge {
+      display: inline-block; background: rgba(0,212,255,0.1);
+      border: 1px solid rgba(0,212,255,0.3);
+      color: var(--cyan); font-size: 0.8rem; letter-spacing: 2px;
+      text-transform: uppercase; padding: 6px 16px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: 3rem; font-weight: 700; margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, var(--cyan) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p { color: var(--muted); font-size: 1.15rem; max-width: 700px; margin: 0 auto 40px; }
+    .hero-tags { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .hero-tags span {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--muted);
+    }
+
+    /* SECTIONS */
+    section { padding: 70px 40px; border-bottom: 1px solid var(--border); }
+    section:nth-child(even) { background: var(--bg2); }
+    .section-label {
+      color: var(--cyan); font-size: 0.8rem; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+    h2 { font-size: 2rem; margin-bottom: 12px; }
+    h3 { font-size: 1.25rem; margin-bottom: 8px; color: var(--cyan); }
+    .lead { color: var(--muted); font-size: 1.05rem; max-width: 800px; margin-bottom: 40px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    /* CARDS */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .card:hover { border-color: var(--cyan); transform: translateY(-3px); }
+    .card .icon { font-size: 2rem; margin-bottom: 14px; }
+    .card p { color: var(--muted); font-size: 0.95rem; margin-top: 8px; }
+
+    /* DIAGRAM - CLOUD LAYER */
+    .diagram {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; margin: 32px 0;
+    }
+    .diagram-title {
+      font-size: 0.8rem; color: var(--muted); letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 24px;
+    }
+
+    /* VPC DIAGRAM */
+    .vpc-diagram {
+      border: 2px dashed #1e4a8a; border-radius: 16px; padding: 24px;
+      position: relative; background: rgba(0,60,120,0.1);
+    }
+    .vpc-diagram .vpc-label {
+      position: absolute; top: -12px; left: 20px;
+      background: #0a1628; padding: 2px 12px;
+      color: #4da6ff; font-size: 0.8rem; font-weight: 600; border-radius: 4px;
+    }
+    .az-row { display: flex; gap: 20px; margin-top: 8px; }
+    .az-box {
+      flex: 1; border: 1px solid #1e3a6a; border-radius: 10px; padding: 16px;
+      background: rgba(0,40,90,0.2);
+    }
+    .az-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+    .subnet {
+      padding: 10px 14px; border-radius: 8px; margin-bottom: 10px;
+      font-size: 0.85rem; font-weight: 600;
+    }
+    .subnet.public { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); color: var(--cyan); }
+    .subnet.private { background: rgba(123,47,247,0.1); border: 1px solid rgba(123,47,247,0.3); color: #a78bfa; }
+    .subnet small { display: block; font-weight: 400; color: var(--muted); font-size: 0.75rem; margin-top: 2px; }
+
+    .igw-box {
+      text-align: center; background: rgba(0,212,255,0.08);
+      border: 1px solid rgba(0,212,255,0.2); border-radius: 8px;
+      padding: 10px; margin-bottom: 20px; font-size: 0.85rem; color: var(--cyan);
+    }
+    .arrow-down { text-align: center; color: var(--muted); font-size: 1.2rem; margin: 8px 0; }
+
+    /* PIPELINE DIAGRAM */
+    .pipeline {
+      display: flex; align-items: center; gap: 0;
+      overflow-x: auto; padding: 8px 0;
+    }
+    .pipe-step {
+      flex-shrink: 0;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px; text-align: center;
+      min-width: 120px;
+    }
+    .pipe-step .pipe-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .pipe-step .pipe-name { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .pipe-step .pipe-desc { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .pipe-step.highlight { border-color: var(--cyan); background: rgba(0,212,255,0.05); }
+    .pipe-arrow {
+      color: var(--muted); font-size: 1.5rem; padding: 0 8px; flex-shrink: 0;
+    }
+    .pipe-step.prod1 { border-color: #ff8c00; background: rgba(255,140,0,0.05); }
+    .pipe-step.prod2 { border-color: var(--purple); background: rgba(123,47,247,0.05); }
+
+    /* EC2 vs FARGATE TABLE */
+    .compare-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    .compare-table th {
+      background: var(--card); padding: 14px 20px; text-align: left;
+      border: 1px solid var(--border); color: var(--cyan); font-size: 0.9rem;
+    }
+    .compare-table td {
+      padding: 12px 20px; border: 1px solid var(--border);
+      font-size: 0.9rem; color: var(--muted); vertical-align: top;
+    }
+    .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge-ec2 {
+      background: rgba(255,140,0,0.15); color: #ff8c00;
+      padding: 2px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600;
+    }
+    .badge-fargate {
+      background: rgba(123,47,247,0.15); color: #a78bfa;
+      padding: 2px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600;
+    }
+
+    /* FREE TIER */
+    .free-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .free-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 20px;
+    }
+    .free-card .service { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+    .free-card .limit { font-size: 1.3rem; font-weight: 700; color: var(--green); margin: 6px 0; }
+    .free-card .note { font-size: 0.82rem; color: var(--muted); }
+    .free-card.warning .limit { color: var(--orange); }
+
+    /* SOFKAR PIPELINE */
+    .sofkar-pipeline {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; margin-top: 32px;
+    }
+
+    /* INFO BOX */
+    .infobox {
+      background: rgba(0,212,255,0.05); border-left: 3px solid var(--cyan);
+      border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 20px 0;
+      font-size: 0.95rem; color: var(--muted);
+    }
+    .infobox strong { color: var(--text); }
+
+    .warn-box {
+      background: rgba(255,140,0,0.05); border-left: 3px solid var(--orange);
+      border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 20px 0;
+      font-size: 0.95rem; color: var(--muted);
+    }
+
+    /* TWO COLUMN */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+    @media(max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* FOOTER */
+    footer {
+      text-align: center; padding: 40px;
+      color: var(--muted); font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+    footer img { height: 22px; filter: brightness(0) invert(0.4); margin-bottom: 12px; display: block; margin: 0 auto 12px; }
+
+    ul.styled { padding-left: 20px; }
+    ul.styled li { color: var(--muted); margin-bottom: 6px; font-size: 0.95rem; }
+    ul.styled li strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <img class="logo" src="sofkar-logo.png" alt="SofkarAI">
+  <div class="links">
+    <a href="#bulut">Bulut</a>
+    <a href="#vpc">VPC</a>
+    <a href="#ec2">EC2</a>
+    <a href="#fargate">Fargate</a>
+    <a href="#freetier">Free Tier</a>
+    <a href="#pipeline">Pipeline</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">SofkarAI · AWS Araştırma Dokümanı</div>
+  <h1>AWS Bulut Altyapısı</h1>
+  <p>VPC, EC2 ve Fargate'i sıfırdan anlayın. SofkarAI text-to-SQL ürününün bulut altyapısını neden bu teknolojilerle kurduğumuzu öğrenin.</p>
+  <div class="hero-tags">
+    <span>☁️ Cloud Computing</span>
+    <span>🔒 VPC</span>
+    <span>🖥️ EC2</span>
+    <span>🐳 Fargate</span>
+    <span>🇹🇷 BulutIstan</span>
+    <span>🌍 AWS</span>
+  </div>
+</div>
+
+<!-- 1. BULUT NEDİR -->
+<section id="bulut">
+  <div class="container">
+    <div class="section-label">01 · Temel Kavram</div>
+    <h2>Bulut Bilişim Nedir?</h2>
+    <p class="lead">Sunucu satın almak yerine, ihtiyaç duyduğunuzda kiralayıp kullandığınız kadar ödemek. Tam da bunu sağlar AWS.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="icon">🏠</div>
+        <h3>Eskiden: On-Premise</h3>
+        <p>Şirket kendi sunucularını satın alır, bir odaya kurar, bakımını yapar. Pahalı, yavaş ölçeklenir, deprem veya yangında veri kaybolabilir.</p>
+      </div>
+      <div class="card">
+        <div class="icon">☁️</div>
+        <h3>Şimdi: Cloud</h3>
+        <p>AWS'nin veri merkezlerindeki sunucuları kiralarsınız. Saniyeler içinde yeni sunucu açar, kullanmadığınızda kapatırsınız. Sadece kullandığınız kadar ödersiniz.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📊</div>
+        <h3>Neden Önemli?</h3>
+        <p>SofkarAI'ın text-to-SQL ürünü müşteri verisi işleyecek. Bu veri Türkiye'de mi, global'de mi saklanacak? Hangi sunucuda? Bunlar bulut altyapısı kararları.</p>
+      </div>
+    </div>
+
+    <div class="infobox">
+      <strong>AWS'nin avantajı:</strong> 190+ ülkede veri merkezi. Türk bankası KVKK için Türkiye'de saklama istiyorsa → BulutIstan. Global müşteri → AWS. SofkarAI tam da bu yüzden iki üretim ortamı kullanıyor.
+    </div>
+  </div>
+</section>
+
+<!-- 2. VPC -->
+<section id="vpc">
+  <div class="container">
+    <div class="section-label">02 · Ağ Güvenliği</div>
+    <h2>VPC – Virtual Private Cloud</h2>
+    <p class="lead">AWS içinde size özel, izole edilmiş bir ağ ortamı. İnternetten gelen her şey buradan geçer. Siz kural koyarsınız.</p>
+
+    <div class="two-col">
+      <div>
+        <h3>VPC Neye Benzer?</h3>
+        <p style="color:var(--muted); margin-bottom:16px;">Bir apartman düşünün. AWS = şehir, VPC = apartman. Dışarıdan direkt odaya giremezsiniz. Kapıcı (Security Group), kat güvenliği (NACL) var. Siz kiracı olarak hangi kapıyı açacağınıza karar verirsiniz.</p>
+
+        <h3 style="margin-top:20px;">Temel Bileşenler</h3>
+        <ul class="styled" style="margin-top:10px;">
+          <li><strong>CIDR Bloğu:</strong> VPC'nin IP aralığı. Örn: 10.0.0.0/16 = 65.536 IP adresi</li>
+          <li><strong>Subnet:</strong> VPC içindeki alt ağlar. Public = internete açık, Private = kapalı</li>
+          <li><strong>Internet Gateway:</strong> VPC'nin internet kapısı</li>
+          <li><strong>Route Table:</strong> Trafiğin nereye gideceğini belirler</li>
+          <li><strong>Security Group:</strong> Instance bazlı güvenlik duvarı (hangi port açık?)</li>
+          <li><strong>NACL:</strong> Subnet bazlı güvenlik duvarı (ek katman)</li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="diagram">
+          <div class="diagram-title">🗺 SofkarAI VPC Mimarisi (sofkar-test-vpc)</div>
+          <div class="igw-box">🌐 Internet Gateway</div>
+          <div class="arrow-down">↕</div>
+          <div class="vpc-diagram">
+            <span class="vpc-label">VPC: 10.0.0.0/16</span>
+            <div class="az-row">
+              <div class="az-box">
+                <div class="az-label">📍 eu-north-1a</div>
+                <div class="subnet public">🟢 Public Subnet
+                  <small>10.0.0.0/20 · EC2, Load Balancer</small>
+                </div>
+                <div class="subnet private">🔵 Private Subnet
+                  <small>10.0.128.0/20 · DB, iç servisler</small>
+                </div>
+              </div>
+              <div class="az-box">
+                <div class="az-label">📍 eu-north-1b</div>
+                <div class="subnet public">🟢 Public Subnet
+                  <small>10.0.16.0/20 · Yedeklilik</small>
+                </div>
+                <div class="subnet private">🔵 Private Subnet
+                  <small>10.0.144.0/20 · Yedeklilik</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="infobox">
+      <strong>Public vs Private Subnet farkı:</strong> Web sunucusu (EC2) public subnet'te olur çünkü internet'ten istek alması gerekir. Veritabanı private subnet'te olur çünkü dışarıdan direkt erişilmemeli, sadece web sunucusu erişmeli. Bu basit kural büyük güvenlik sağlar.
+    </div>
+
+    <div class="warn-box">
+      <strong>⚠️ Dikkat:</strong> NAT Gateway (private subnet'teki kaynakların internete çıkması için) ücretlidir. Saatlik ~$0.045. Test ortamında "None" seçin.
+    </div>
+  </div>
+</section>
+
+<!-- 3. EC2 -->
+<section id="ec2">
+  <div class="container">
+    <div class="section-label">03 · Sanal Sunucu</div>
+    <h2>EC2 – Elastic Compute Cloud</h2>
+    <p class="lead">AWS'nin sanal makine servisi. İstediğiniz boyutta (CPU, RAM), istediğiniz işletim sistemiyle, dakikalar içinde sunucu açabilirsiniz.</p>
+
+    <div class="cards">
+      <div class="card">
+        <div class="icon">⚡</div>
+        <h3>Instance Tipleri</h3>
+        <p><strong>t3.micro:</strong> 2 vCPU, 1GB RAM. Ücretsiz tier. Test için ideal.<br><br>
+        <strong>t3.medium:</strong> 2 vCPU, 4GB RAM. Küçük prod için.<br><br>
+        <strong>c6g.large:</strong> Hesaplama odaklı. ML inference için uygun.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🖼️</div>
+        <h3>AMI (Makine Görüntüsü)</h3>
+        <p>Sunucunuzun "fotoğrafı". Hangi işletim sistemi, hangi yazılımlar kurulu. Amazon Linux 2023 = AWS için optimize edilmiş, ücretsiz, güncel Linux.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🔑</div>
+        <h3>Key Pair & SSH</h3>
+        <p>Sunucuya bağlanmak için şifre yerine kriptografik anahtar kullanılır (.pem dosyası). SSH = Secure Shell, uzak sunucuya terminal açmak.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📝</div>
+        <h3>User Data</h3>
+        <p>Instance ilk başladığında otomatik çalışan script. Apache kurmak, uygulama deploy etmek gibi işlemler. Bir kez yaz, her açılışta çalışsın.</p>
+      </div>
+    </div>
+
+    <div class="diagram" style="margin-top:32px;">
+      <div class="diagram-title">🖥 EC2 Instance Yaşam Döngüsü</div>
+      <div class="pipeline">
+        <div class="pipe-step highlight">
+          <div class="pipe-icon">🚀</div>
+          <div class="pipe-name">Başlatma</div>
+          <div class="pipe-desc">AMI seç, tip seç</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">⚙️</div>
+          <div class="pipe-name">Başlıyor</div>
+          <div class="pipe-desc">User Data çalışır</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step highlight">
+          <div class="pipe-icon">✅</div>
+          <div class="pipe-name">Çalışıyor</div>
+          <div class="pipe-desc">Para sayılıyor</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">⏸️</div>
+          <div class="pipe-name">Durduruldu</div>
+          <div class="pipe-desc">Disk ücreti devam</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">🗑️</div>
+          <div class="pipe-name">Sonlandırıldı</div>
+          <div class="pipe-desc">Her şey silindi</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="warn-box" style="margin-top:24px;">
+      <strong>⚠️ Önemli:</strong> Instance'ı sadece "Durdur" (Stop) yaparsanız disk ücreti devam eder. Tamamen ücreti kesmek için "Sonlandır" (Terminate) etmelisiniz. Free Tier'da t3.micro için 750 saat/ay ücretsiz.
+    </div>
+  </div>
+</section>
+
+<!-- 4. FARGATE -->
+<section id="fargate">
+  <div class="container">
+    <div class="section-label">04 · Serverless Container</div>
+    <h2>AWS Fargate</h2>
+    <p class="lead">Container çalıştırmak için sunucu yönetmek zorunda olmadığınız AWS servisi. Siz sadece uygulamanızı tanımlarsınız, AWS gerisini halleder.</p>
+
+    <div class="infobox">
+      <strong>Container nedir?</strong> Uygulamanızı ve tüm bağımlılıklarını (Python, kütüphaneler, config) bir kutu içine koyup her yerde aynı şekilde çalıştırmanızı sağlayan teknoloji. Docker ile oluşturulur.
+    </div>
+
+    <div class="two-col" style="margin-top:32px;">
+      <div>
+        <h3>Fargate Nasıl Çalışır?</h3>
+        <ul class="styled" style="margin-top:12px;">
+          <li><strong>Task Definition:</strong> Container'ın ne kadar CPU/RAM kullanacağını, hangi Docker image'ı çalıştıracağını tanımlarsınız</li>
+          <li><strong>Cluster:</strong> Task'ların çalıştığı mantıksal grup</li>
+          <li><strong>Service:</strong> Task'ın kaç kopya çalışacağını, nasıl ölçekleneceğini yönetir</li>
+          <li><strong>ECS:</strong> Elastic Container Service. Fargate'in arka planda kullandığı orkestrasyon katmanı</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Fargate'in Avantajları</h3>
+        <ul class="styled" style="margin-top:12px;">
+          <li><strong>Sunucu yok:</strong> OS, patch, güvenlik güncellemesi derdi yok</li>
+          <li><strong>Otomatik ölçekleme:</strong> Trafik artınca container sayısı artar</li>
+          <li><strong>Sadece kullanım ücreti:</strong> Container çalıştığı süre kadar öde</li>
+          <li><strong>Mikroservis uyumlu:</strong> Her servis ayrı container = kolay yönetim</li>
+          <li><strong>CI/CD ile mükemmel:</strong> GitHub Actions → Docker build → Fargate deploy</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 style="margin-top:40px; margin-bottom:20px;">EC2 mi, Fargate mi? Karşılaştırma</h3>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Kriter</th>
+          <th><span class="badge-ec2">EC2</span></th>
+          <th><span class="badge-fargate">Fargate</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Sunucu Yönetimi</strong></td>
+          <td>Siz yönetirsiniz (OS, güncelleme, patch)</td>
+          <td>AWS yönetir, siz uğraşmazsınız</td>
+        </tr>
+        <tr>
+          <td><strong>Ölçekleme</strong></td>
+          <td>Auto Scaling Group kurmanız gerekir</td>
+          <td>Otomatik, task bazlı</td>
+        </tr>
+        <tr>
+          <td><strong>Ücret Modeli</strong></td>
+          <td>Sunucu çalıştığı sürece (dursa bile disk)</td>
+          <td>Sadece container çalıştığı süre</td>
+        </tr>
+        <tr>
+          <td><strong>Başlangıç Süresi</strong></td>
+          <td>Dakikalar (instance boot)</td>
+          <td>Saniyeler (container start)</td>
+        </tr>
+        <tr>
+          <td><strong>GPU Desteği</strong></td>
+          <td>✅ Evet (model eğitimi için ideal)</td>
+          <td>❌ Hayır</td>
+        </tr>
+        <tr>
+          <td><strong>Kontrol</strong></td>
+          <td>Tam kontrol (SSH, özel ayarlar)</td>
+          <td>Sınırlı (ama genelde yeterli)</td>
+        </tr>
+        <tr>
+          <td><strong>SofkarAI için</strong></td>
+          <td>ML model eğitimi, GPU gereken işler</td>
+          <td>text-to-SQL API servisi, deploy pipeline</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- 5. FREE TIER -->
+<section id="freetier">
+  <div class="container">
+    <div class="section-label">05 · Ücretsiz Kullanım</div>
+    <h2>AWS Free Tier – Neler Ücretsiz?</h2>
+    <p class="lead">Yeni AWS hesaplarına 12 ay boyunca ücretsiz kullanım hakkı tanınır. Dikkatli kullanılırsa hiç para ödemeden ciddi şeyler öğrenebilirsiniz.</p>
+
+    <div class="free-grid">
+      <div class="free-card">
+        <div class="service">EC2</div>
+        <div class="limit">750 saat/ay</div>
+        <div class="note">t2.micro veya t3.micro, 12 ay. Sürekli açık 1 sunucu = ~720 saat. Sınırda!</div>
+      </div>
+      <div class="free-card">
+        <div class="service">S3 Depolama</div>
+        <div class="limit">5 GB</div>
+        <div class="note">12 ay. Statik dosya, log, backup için yeterli. 20.000 GET isteği ücretsiz.</div>
+      </div>
+      <div class="free-card">
+        <div class="service">RDS (Veritabanı)</div>
+        <div class="limit">750 saat/ay</div>
+        <div class="note">db.t3.micro, 20GB depolama, 12 ay. PostgreSQL veya MySQL.</div>
+      </div>
+      <div class="free-card">
+        <div class="service">Lambda</div>
+        <div class="limit">1M istek/ay</div>
+        <div class="note">Süresiz ücretsiz. Serverless fonksiyon. 400.000 GB-saniye compute.</div>
+      </div>
+      <div class="free-card">
+        <div class="service">VPC</div>
+        <div class="limit">Ücretsiz</div>
+        <div class="note">VPC oluşturma, subnet, route table, internet gateway tamamen ücretsiz.</div>
+      </div>
+      <div class="free-card">
+        <div class="service">CloudWatch</div>
+        <div class="limit">10 metrik/ay</div>
+        <div class="note">Log izleme, alarm. Temel monitoring için yeterli.</div>
+      </div>
+      <div class="free-card warning">
+        <div class="service">NAT Gateway ⚠️</div>
+        <div class="limit">ÜCRETLİ!</div>
+        <div class="note">Saatlik $0.045 + veri ücreti. Test ortamında kullanmayın!</div>
+      </div>
+      <div class="free-card warning">
+        <div class="service">Elastic IP ⚠️</div>
+        <div class="limit">Dikkat!</div>
+        <div class="note">Instance'a bağlı değilse saatlik ücret kesilir. Kullanmıyorsan sil.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. SOFKARAI PİPELINE -->
+<section id="pipeline">
+  <div class="container">
+    <div class="section-label">06 · SofkarAI Mimarisi</div>
+    <h2>SofkarAI CI/CD Pipeline</h2>
+    <p class="lead">Kodun lokalden müşteri üretimine giden yolculuğu. İki farklı müşteri grubu, iki farklı bulut altyapısı.</p>
+
+    <div class="sofkar-pipeline">
+      <div class="diagram-title">🚀 Deployment Pipeline</div>
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-icon">💻</div>
+          <div class="pipe-name">Lokal</div>
+          <div class="pipe-desc">Geliştirme</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step highlight">
+          <div class="pipe-icon">🐙</div>
+          <div class="pipe-name">GitHub</div>
+          <div class="pipe-desc">Versiyon kontrol</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step highlight">
+          <div class="pipe-icon">⚙️</div>
+          <div class="pipe-name">GitHub Actions</div>
+          <div class="pipe-desc">Test + Build</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">🌿</div>
+          <div class="pipe-name">Develop Branch</div>
+          <div class="pipe-desc">Geliştirme kolu</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step highlight">
+          <div class="pipe-icon">☁️</div>
+          <div class="pipe-name">BulutIstan Test</div>
+          <div class="pipe-desc">Entegrasyon testi</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">👤</div>
+          <div class="pipe-name">PO İncelemesi</div>
+          <div class="pipe-desc">Onay</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step">
+          <div class="pipe-icon">🌱</div>
+          <div class="pipe-name">Main Branch</div>
+          <div class="pipe-desc">Üretim kolu</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:20px; margin-top:24px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:280px;">
+          <div class="pipe-step prod1" style="border-radius:10px; padding:20px;">
+            <div class="pipe-icon">🏦</div>
+            <div class="pipe-name" style="font-size:1rem; margin-bottom:4px;">Prod 1 – BulutIstan</div>
+            <div class="pipe-desc" style="font-size:0.85rem;">Finans, bankacılık müşterileri. KVKK uyumlu. Türkiye veri merkezi. Veriler yurt dışına çıkmaz.</div>
+          </div>
+        </div>
+        <div style="flex:1; min-width:280px;">
+          <div class="pipe-step prod2" style="border-radius:10px; padding:20px;">
+            <div class="pipe-icon">🌍</div>
+            <div class="pipe-name" style="font-size:1rem; margin-bottom:4px;">Prod 2 – AWS</div>
+            <div class="pipe-desc" style="font-size:0.85rem;">Global ve hassasiyet gerektirmeyen müşteriler. AWS Fargate ile container bazlı deploy. Otomatik ölçekleme.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="infobox" style="margin-top:24px;">
+      <strong>Neden iki üretim ortamı?</strong> Türk finans mevzuatı (BDDK, KVKK) müşteri verilerinin Türkiye'de saklanmasını zorunlu kılar. Bu nedenle banka ve finans müşterileri BulutIstan'a, veri lokasyonu kısıtı olmayan global müşteriler AWS'ye yönlendirilir.
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <img src="sofkar-logo.png" alt="SofkarAI">
+  <p>SofkarAI · AWS Bulut Altyapısı Araştırma Dokümanı · 2026</p>
+  <p style="margin-top:6px; font-size:0.8rem;">Bu sayfa AWS EC2 + VPC üzerinde çalışmaktadır · eu-north-1 (Stockholm)</p>
+</footer>
+
+</body>
+</html>
