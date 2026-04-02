@@ -190,11 +190,9 @@
 <nav>
   <img class="logo" src="sofkar-logo.png" alt="SofkarAI">
   <div class="links">
-    <a href="#bulut">Bulut</a>
     <a href="#vpc">VPC</a>
     <a href="#ec2">EC2</a>
     <a href="#fargate">Fargate</a>
-    <a href="#freetier">Free Tier</a>
   </div>
 </nav>
 
@@ -205,44 +203,18 @@
     <h1>AWS Bulut Altyapısı</h1>
     <p>VPC, EC2 ve Fargate'e dair temel kavramlar. Pratik notlar, karşılaştırmalar ve maliyet dikkat noktaları.</p>
     <div class="hero-tags">
-      <span>Cloud Computing</span>
       <span>VPC</span>
       <span>EC2</span>
       <span>Fargate</span>
-      <span>Free Tier</span>
       <span>eu-north-1</span>
     </div>
   </div>
 </div>
 
-<!-- 1. BULUT NEDİR -->
-<section id="bulut" class="alt">
-  <div class="container">
-    <div class="section-label">01 — Temel Kavram</div>
-    <h2>Bulut Bilişim Nedir?</h2>
-    <p class="lead">Sunucu satın almak yerine, ihtiyaç duyduğunuzda kiralayıp kullandığınız kadar ödemek. AWS tam da bunu sağlar — fiziksel donanım sorumluluğu olmadan, ölçeklenebilir altyapı.</p>
-
-    <div class="cards">
-      <div class="card">
-        <h3>On-Premise (Eski Model)</h3>
-        <p>Şirket kendi sunucularını satın alır, kurar, bakımını yapar. Pahalı, yavaş ölçeklenir. Donanım arızası veya afet durumunda veri kayıp riski yüksek.</p>
-      </div>
-      <div class="card">
-        <h3>Cloud (Yeni Model)</h3>
-        <p>AWS'nin veri merkezlerindeki sunucular kiralanır. Saniyeler içinde yeni kaynak açılır, kullanılmadığında kapatılır. Yalnızca kullanılan kadar ödenir.</p>
-      </div>
-      <div class="card">
-        <h3>Neden Önemli?</h3>
-        <p>Müşteri verisi nerede saklanacak, hangi sunucuda çalışacak, nasıl ölçeklenecek — bunlar bulut altyapısı kararları. Bu kararlar hem maliyeti hem güvenliği doğrudan etkiler.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- 2. VPC -->
+<!-- 1. VPC -->
 <section id="vpc">
   <div class="container">
-    <div class="section-label">02 — Ağ Güvenliği</div>
+    <div class="section-label">01 — Ağ Güvenliği</div>
     <h2>VPC – Virtual Private Cloud</h2>
     <p class="lead">AWS içinde size özel, izole edilmiş bir ağ alanı. Dışarıdan gelen trafiğin nasıl yönleneceğini ve neyin içeri girebileceğini siz belirlersiniz.</p>
 
@@ -309,7 +281,7 @@
 <!-- 3. EC2 -->
 <section id="ec2" class="alt">
   <div class="container">
-    <div class="section-label">03 — Sanal Sunucu</div>
+    <div class="section-label">02 — Sanal Sunucu</div>
     <h2>EC2 – Elastic Compute Cloud</h2>
     <p class="lead">AWS'nin sanal makine servisi. İstediğiniz boyutta, istediğiniz işletim sistemiyle dakikalar içinde sunucu açabilirsiniz.</p>
 
@@ -345,7 +317,7 @@
 <!-- 4. FARGATE -->
 <section id="fargate">
   <div class="container">
-    <div class="section-label">04 — Serverless Container</div>
+    <div class="section-label">03 — Serverless Container</div>
     <h2>AWS Fargate</h2>
     <p class="lead">Container çalıştırmak için sunucu yönetmek zorunda olmadığınız AWS servisi. Siz yalnızca uygulamayı tanımlarsınız, altyapıyı AWS yönetir.</p>
 
@@ -400,58 +372,6 @@
         </tr>
       </tbody>
     </table>
-  </div>
-</section>
-
-<!-- 5. FREE TIER -->
-<section id="freetier" class="alt">
-  <div class="container">
-    <div class="section-label">05 — Ücretsiz Kullanim</div>
-    <h2>AWS Free Tier</h2>
-    <p class="lead">Yeni hesaplara 12 ay boyunca ücretsiz kullanım hakkı tanınır. Dikkatli kullanılırsa hiç ödeme yapılmadan ciddi şeyler denenebilir.</p>
-
-    <div class="free-grid">
-      <div class="free-card">
-        <div class="service">EC2</div>
-        <div class="limit">750 saat/ay</div>
-        <div class="note">t2.micro veya t3.micro. 12 ay. Sürekli açık 1 sunucu ~720 saat — sınırda.</div>
-      </div>
-      <div class="free-card">
-        <div class="service">S3</div>
-        <div class="limit">5 GB</div>
-        <div class="note">12 ay. 20.000 GET isteği ücretsiz. Statik dosya ve log için yeterli.</div>
-      </div>
-      <div class="free-card">
-        <div class="service">RDS</div>
-        <div class="limit">750 saat/ay</div>
-        <div class="note">db.t3.micro, 20 GB depolama. PostgreSQL veya MySQL. 12 ay.</div>
-      </div>
-      <div class="free-card">
-        <div class="service">Lambda</div>
-        <div class="limit">1M istek/ay</div>
-        <div class="note">Süresiz ücretsiz. Serverless fonksiyon için 400.000 GB-saniye compute.</div>
-      </div>
-      <div class="free-card">
-        <div class="service">VPC</div>
-        <div class="limit">Ücretsiz</div>
-        <div class="note">VPC, subnet, route table, internet gateway oluşturma tamamen ücretsiz.</div>
-      </div>
-      <div class="free-card">
-        <div class="service">CloudWatch</div>
-        <div class="limit">10 metrik/ay</div>
-        <div class="note">Log izleme ve temel alarm. Basit monitoring için yeterli.</div>
-      </div>
-      <div class="free-card warning">
-        <div class="service">NAT Gateway</div>
-        <div class="limit">Ucretli</div>
-        <div class="note">Saatlik $0.045 + veri ücreti. Test ortamında kullanmayın.</div>
-      </div>
-      <div class="free-card warning">
-        <div class="service">Elastic IP</div>
-        <div class="limit">Dikkat</div>
-        <div class="note">Instance'a bağlı değilse saatlik ücret kesilir. Kullanılmıyorsa silin.</div>
-      </div>
-    </div>
   </div>
 </section>
 
